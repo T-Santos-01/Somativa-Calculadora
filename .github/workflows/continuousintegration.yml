@@ -1,11 +1,39 @@
 name: Node Lint And Format
-
-on: push
+# Toda a ação
+on:
+  push:
+    branches:
+      - main  
+  pull_request:
 
 jobs:
-    run:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: beauwilliams/run-node-formatter@latest
-              env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  lint_and_format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Run Node Formatter
+        uses: beauwilliams/run-node-formatter@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Run unit tests
+        run: |
+          yarn install
+          yarn build
+          yarn test --coverage
+        env:
+          SKIP_PREFLIGHT_CHECK: true
+          CI: true
